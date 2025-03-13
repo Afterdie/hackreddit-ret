@@ -2,12 +2,12 @@ import { Devvit } from "@devvit/public-api";
 
 import { PageProps } from "../types/props.js";
 
-//import { createGene } from "../utils/createGene.js";
+import { createGene } from "../utils/createGene.js";
 
 const HatchPage: Devvit.BlockComponent<PageProps> = ({ navigate, context }) => {
   const hatch: Devvit.Blocks.OnPressEventHandler = () => {
     //create the post here and also write to the redis db
-    //const value = createGene(context);
+    const value = createGene(context);
   };
 
   return (
