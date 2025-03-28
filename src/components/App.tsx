@@ -65,7 +65,13 @@ const App: Devvit.CustomPostComponent = (context: Devvit.Context) => {
         });
       } else if (message.type === "imgURL") {
         unmount();
-        createPost(message.url);
+        try {
+          createPost(message.url);
+          ui.showToast("Hatched your RedPet");
+        } catch (e) {
+          if (e instanceof Error) ui.showToast(`Failed: ${e.message}`);
+          else ui.showToast("Something went wrong");
+        }
       }
     },
 
