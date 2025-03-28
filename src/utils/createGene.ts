@@ -10,7 +10,7 @@ export async function createGene(context: Devvit.Context): Promise<number> {
     by: "score",
   });
   const [parentA, parentB] = selectParents(pool);
-  context.ui.showToast(parentA + " " + parentB);
+
   const childGene = crossover(parentA, parentB);
   adjustWeights(parentA, parentB);
   return childGene;
@@ -38,7 +38,7 @@ const selectParents = (pool: creature[]): [number, number] => {
     parentB = pickOne();
   }
 
-  return [parseInt(parentA.member), parseInt(parentB.member)];
+  return [parseInt(parentA.member, 2), parseInt(parentB.member, 2)];
 };
 
 const crossover = (parentA: number, parentB: number): number => {

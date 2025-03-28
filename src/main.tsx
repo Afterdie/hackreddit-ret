@@ -1,4 +1,4 @@
-import { Devvit, useState } from "@devvit/public-api";
+import { Devvit, JobContext } from "@devvit/public-api";
 
 import App from "./components/App.js";
 
@@ -39,7 +39,14 @@ Devvit.addMenuItem({
   label: "Genesis",
   location: "subreddit",
   onPress: async (_, context) => {
-    const { reddit, ui, redis } = context;
+    //setup a job that runs at the end of every day to generate the leaderboard from the fitness set
+    await context.scheduler.runJob({
+      name: "createLeaderboard", // the name of the job that we specified in addSchedulerJob() above
+      cron: "0 0 * * *",
+    });
+
+    //generate the first post so users can click the hatch button
+    const { reddit, ui } = context;
     const subreddit = await reddit.getCurrentSubreddit();
     const post = await reddit.submitPost({
       title: "Pet Genesis",
@@ -59,5 +66,63 @@ Devvit.addMenuItem({
     ui.navigateTo(post);
   },
 });
+
+//for dev purposes clear the hset when too many have been generated
+Devvit.addMenuItem({
+  label: "Nuke",
+  location: "subreddit",
+  onPress: async (_, context) => {
+    const { ui, redis } = context;
+    //remove all entries
+    redis.del("preFitness");
+    ui.showToast(`Nuked the population 😢`);
+  },
+});
+
+Devvit.addSchedulerJob({
+  name: "createLeaderboard",
+  onRun: async (_, context) => {
+    handleLeaderboardGeneration(context);
+  },
+});
+
+//
+const handleLeaderboardGeneration = async (context: JobContext) => {
+  const { redis, reddit } = context;
+
+  //clear the leaderboard from last day
+  await redis.del("population");
+  console.log("Cleared yesterday's leaderboard");
+
+  const postData = await redis.hGetAll("preFitness");
+
+  if (!postData) {
+    console.log("No posts found");
+    return;
+  }
+
+  for (const [postId, _] of Object.entries(postData)) {
+    try {
+      const post = await reddit.getPostById(postId);
+
+      if (!post) {
+        console.log(`Post ${postId} not found`);
+        continue;
+      }
+
+      const likes = post.score || 0;
+      const comments = post.numberOfComments || 0;
+
+      // comments have higher weightage
+      const score = likes * 2 + comments * 3;
+
+      await redis.zAdd("population", { member: postId, score });
+    } catch (error) {
+      console.error(`Error processing post ${postId}:`, error);
+    }
+  }
+
+  await redis.del("preFitness");
+};
 
 export default Devvit;

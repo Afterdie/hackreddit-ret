@@ -15,8 +15,8 @@ class App {
    * @return {void}
    */
   #onMessage = (ev) => {
-    const { message } = ev.data.data;
-    const gene = message.gene;
+    console.log(ev.data.data);
+    const gene = ev.data.data.message.gene;
     import("./geneDecoder.min.js").then(({ renderCreature }) => {
       const base64img = renderCreature(gene);
       postWebViewMessage({ type: "imgURL", url: base64img });

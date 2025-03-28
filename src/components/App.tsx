@@ -4,7 +4,7 @@ import { createGene } from "../utils/createGene.js";
 import { useWebView } from "@devvit/public-api";
 
 /** Message from Devvit to the web view. */
-export type DevvitMessage = { type: "set-gene"; gene: number };
+export type DevvitMessage = { gene: number };
 
 /** Message from the web view to Devvit. */
 export type WebViewMessage =
@@ -64,9 +64,9 @@ const App: Devvit.CustomPostComponent = (context: Devvit.Context) => {
           if (!newGene) throw new Error("Failed to generate gene");
           setGene(newGene);
           postMessage({
-            type: "set-gene",
             gene: newGene,
           });
+          ui.showToast(`${newGene}`);
         } else if (message.type === "imgURL") {
           if (!gene) throw new Error("Faulty Gene");
           unmount();
@@ -79,8 +79,6 @@ const App: Devvit.CustomPostComponent = (context: Devvit.Context) => {
       } catch (e) {
         if (e instanceof Error) ui.showToast(`Failed: ${e.message}`);
         else ui.showToast("Something went wrong");
-      } finally {
-        unmount();
       }
     },
 
@@ -91,7 +89,7 @@ const App: Devvit.CustomPostComponent = (context: Devvit.Context) => {
     <vstack
       padding="medium"
       gap="medium"
-      alignment="top center"
+      alignment="center"
       cornerRadius="medium"
     >
       {loading && <text>Loading...</text>}
