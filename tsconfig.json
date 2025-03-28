@@ -1,3 +1,7 @@
 {
-  "extends": "@devvit/public-api/devvit.tsconfig.json"
+  "extends": "@devvit/public-api/devvit.tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false // Optional: Disables type checking for JS files
+  }
 }

@@ -5,6 +5,7 @@ import App from "./components/App.js";
 Devvit.configure({
   redditAPI: true,
   redis: true,
+  media: true,
 });
 
 Devvit.addCustomPostType({
@@ -18,15 +19,19 @@ Devvit.addTrigger({
   onEvent: async (_, context) => {
     const { redis } = context;
 
-    await redis.set("installed_on", new Date().toISOString());
-    await context.redis.zAdd(
-      "population",
-      { member: "1100", score: 80 },
-      { member: "1111", score: 95 },
-      { member: "0000", score: 77 },
-      { member: "0101", score: 84 },
-      { member: "1001", score: 92 }
-    );
+    try {
+      await redis.zAdd(
+        "population",
+        { member: "1100", score: 80 },
+        { member: "1111", score: 95 },
+        { member: "0000", score: 77 },
+        { member: "0101", score: 84 },
+        { member: "1001", score: 92 }
+      );
+      await redis.set("installed_on", new Date().toISOString());
+    } catch (e) {
+      console.log("something went wrong");
+    }
   },
 });
 
@@ -41,7 +46,7 @@ Devvit.addMenuItem({
       subredditName: subreddit.name,
       preview: (
         <vstack height="100%" width="100%" alignment="middle center">
-          <text size="large">Loading ...</text>
+          <text size="large">on the way ...</text>
         </vstack>
       ),
     });
