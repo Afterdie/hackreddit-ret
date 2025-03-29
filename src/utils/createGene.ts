@@ -27,6 +27,9 @@ const selectParents = (pool: creature[]): [number, number] => {
   }
 
   const pickOne = (): creature => {
+    if (totalScore === 0) {
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
     const randomValue = Math.random() * totalScore;
     const index = binarySearch(cumulativeScores, randomValue);
     return pool[index];

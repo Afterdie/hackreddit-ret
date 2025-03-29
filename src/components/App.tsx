@@ -39,8 +39,13 @@ const App: Devvit.CustomPostComponent = (context: Devvit.Context) => {
       title: `${userName}'s pet`,
       subredditName: subName,
       preview: (
-        <vstack>
-          <text>${userName || "Someone"}'s RedPet is hatching 🐣</text>
+        <vstack
+          padding="medium"
+          gap="medium"
+          alignment="center"
+          cornerRadius="medium"
+        >
+          <text>{userName || "Someone"}'s RedPet is hatching 🐣</text>
         </vstack>
       ),
     });
@@ -66,7 +71,7 @@ const App: Devvit.CustomPostComponent = (context: Devvit.Context) => {
           postMessage({
             gene: newGene,
           });
-          ui.showToast(`${newGene}`);
+          //ui.showToast(`${newGene}`);
         } else if (message.type === "imgURL") {
           if (!gene) throw new Error("Faulty Gene");
           unmount();

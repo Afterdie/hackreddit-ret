@@ -15,7 +15,6 @@ class App {
    * @return {void}
    */
   #onMessage = (ev) => {
-    console.log(ev.data.data);
     const gene = ev.data.data.message.gene;
     import("./geneDecoder.min.js").then(({ renderCreature }) => {
       const base64img = renderCreature(gene);

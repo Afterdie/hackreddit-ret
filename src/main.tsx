@@ -101,7 +101,7 @@ const handleLeaderboardGeneration = async (context: JobContext) => {
     return;
   }
 
-  for (const [postId, _] of Object.entries(postData)) {
+  for (const [postId, gene] of Object.entries(postData)) {
     try {
       const post = await reddit.getPostById(postId);
 
@@ -116,7 +116,7 @@ const handleLeaderboardGeneration = async (context: JobContext) => {
       // comments have higher weightage
       const score = likes * 2 + comments * 3;
 
-      await redis.zAdd("population", { member: postId, score });
+      await redis.zAdd("population", { member: gene, score });
     } catch (error) {
       console.error(`Error processing post ${postId}:`, error);
     }
