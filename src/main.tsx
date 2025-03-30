@@ -20,14 +20,11 @@ Devvit.addTrigger({
     const { redis } = context;
 
     try {
-      await redis.zAdd(
-        "population",
-        { member: "00000011011101111001001011101001010", score: 80 },
-        { member: "11101011001010100000010111111000011", score: 95 },
-        { member: "00100011101010010000101111111111001", score: 77 },
-        { member: "01110010011001001000010010101001111", score: 84 },
-        { member: "01100110101000101001101010000010110", score: 92 }
-      );
+      //setup a job that runs at the end of every day to generate the leaderboard from the fitness set
+      await context.scheduler.runJob({
+        name: "createLeaderboard", // the name of the job that we specified in addSchedulerJob() above
+        cron: "0 0 * * *",
+      });
       await redis.set("installed_on", new Date().toISOString());
     } catch (e) {
       console.log("something went wrong");
@@ -39,14 +36,16 @@ Devvit.addMenuItem({
   label: "Genesis",
   location: "subreddit",
   onPress: async (_, context) => {
-    //setup a job that runs at the end of every day to generate the leaderboard from the fitness set
-    await context.scheduler.runJob({
-      name: "createLeaderboard", // the name of the job that we specified in addSchedulerJob() above
-      cron: "0 0 * * *",
-    });
-
     //generate the first post so users can click the hatch button
-    const { reddit, ui } = context;
+    const { reddit, ui, redis } = context;
+    await redis.zAdd(
+      "population",
+      { member: "00000011011101111001001011101001010", score: 80 },
+      { member: "11101011001010100000010111111000011", score: 95 },
+      { member: "00100011101010010000101111111111001", score: 77 },
+      { member: "01110010011001001000010010101001111", score: 84 },
+      { member: "01100110101000101001101010000010110", score: 92 }
+    );
     const subreddit = await reddit.getCurrentSubreddit();
     const post = await reddit.submitPost({
       title: "Pet Genesis",
@@ -75,6 +74,7 @@ Devvit.addMenuItem({
     const { ui, redis } = context;
     //remove all entries
     redis.del("preFitness");
+    redis.del("population");
     ui.showToast(`Nuked the population 😢`);
   },
 });
